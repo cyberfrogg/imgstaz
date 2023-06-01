@@ -31,7 +31,7 @@ class LoggerService implements ILoggerService {
 
     getCurrentTimeFormatted(): string {
         let now = new Date();
-        return now.toLocaleString().replace(',', '');
+        return now.toLocaleString("en-GB", { hour12: false }).replace(',', '');
     }
 }
 
