@@ -20,15 +20,24 @@ import PostUploadRoute from './routes/api/v1/image/PostUploadRoute';
 const fileUpload = require('express-fileupload');
 const cors = require('cors');
 
+const maxFileSize = Number(process.env.MAX_FILE_SIZE);
+const logger = new LoggerService();
+
+
+// express initializing
 const app = express();
-app.use(fileUpload());
+app.use(fileUpload({
+    abortOnLimit: true,
+    limits: { fileSize: maxFileSize * 1024 * 1024 },
+}));
 app.use(express.json());
 app.use(cors({
     origin: process.env.WEBSITE_CORS_URL
 }));
 
+
+
 const initializeApp = async () => {
-    const logger = new LoggerService();
     const database = createDatabase(logger);
     const storage = createStorageService(logger);
     const routes = createRoutes(logger, database, storage);
@@ -53,14 +62,15 @@ const initializeApp = async () => {
 const createRoutes = async (logger: ILoggerService, database: IDatabaseService, storage: IStorageService): Promise<Array<IRoute>> => {
     let routes = new Array<IRoute>();
     routes.push(new GetPingRoute("/api/v1/ping"));
-    routes.push(new PostUploadRoute("/api/v1/image/upload", storage));
+    routes.push(new PostUploadRoute("/api/v1/image/upload", database, storage));
 
     // initialize routes
     for (const route of routes) {
-        await route.Initialize(app);
-        console.log(`\x1b[32mInitialized ${route.path} route \x1b[0m`);
+        await route.initialize(app);
+        logger.log(`\x1b[32mInitialized ${route.path} route \x1b[0m`);
     }
 
+    logger.log(`\x1b[32mAll routes are initialized! \x1b[0m`);
     return routes;
 }
 
@@ -77,9 +87,16 @@ const createDatabase = (logger: ILoggerService): IDatabaseService => {
 
     const projectsTable = new MysqlTableProjects(executor);
     const projectTokensTable = new MysqlTableProjectTokens();
-    const imagesTable = new MysqlTableImages();
+    const imagesTable = new MysqlTableImages(logger, executor);
 
-    return new MysqlDatabaseService(projectsTable, projectTokensTable, imagesTable);
+    logger.log(`\x1b[32mDatabase initialized! \x1b[0m`);
+    return new MysqlDatabaseService(
+        projectsTable,
+        projectTokensTable,
+        imagesTable,
+        executor,
+        logger
+    );
 }
 
 // create storage service
@@ -93,10 +110,11 @@ const createStorageService = (logger: ILoggerService): IStorageService => {
         process.env.S3_FORCE_PATH_STYLE == "1"
     )
 
-    const s3Bucket = new S3BucketService(config);
+    const s3Bucket = new S3BucketService(config, logger);
 
+    logger.log(`\x1b[32mStorage Service initialized! \x1b[0m`);
     return new StorageService(s3Bucket);
 }
 
-console.log("\n \x1b[34m --- APP START --- \x1b[0m")
+logger.log("\n \x1b[34m --- APP START --- \x1b[0m")
 initializeApp();

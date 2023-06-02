@@ -19,6 +19,10 @@ class MysqlTableProjects implements IDatabaseTableProject {
     GetBy(column: string, value: string): Promise<void> {
         throw new Error('Method not implemented.');
     }
+
+    UpdateColumnBy(columnToUpdate: string, value: string, getByColumnBy: string, getByValue: any) {
+        throw new Error('Method not implemented.');
+    }
 }
 
 export default MysqlTableProjects;

@@ -26,6 +26,10 @@ class LoggerService implements ILoggerService {
             return "null"
         }
 
+        if (typeof message === 'object' || Array.isArray(message)) {
+            return JSON.stringify(message);
+        }
+
         return message.toString();
     }
 

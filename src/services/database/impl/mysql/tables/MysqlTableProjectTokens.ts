@@ -16,6 +16,9 @@ class MysqlTableProjectTokens implements IDatabaseTableProjectTokens {
         throw new Error('Method not implemented.');
     }
 
+    UpdateColumnBy(columnToUpdate: string, value: string, getByColumnBy: string, getByValue: any) {
+        throw new Error('Method not implemented.');
+    }
 }
 
 export default MysqlTableProjectTokens;

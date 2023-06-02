@@ -9,11 +9,11 @@ class GetPingRoute implements IRoute {
         this.path = path;
     }
 
-    async Initialize(expressApp: Express): Promise<void> {
-        expressApp.get(this.path, this.Execute);
+    async initialize(expressApp: Express): Promise<void> {
+        expressApp.get(this.path, this.execute);
     }
 
-    async Execute(req: Request, res: Response) {
+    async execute(req: Request, res: Response) {
         res.json(ReqResponse.Success("pong"));
     }
 }
