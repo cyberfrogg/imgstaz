@@ -22,7 +22,7 @@ class MysqlDatabaseExecutor {
 
             return ReqResponse.Success(results);
         } catch (error) {
-            this.logger.log(error);
+            this.logger.error(error);
             return ReqResponse.Fail("ERRCODE_DATABASE_FAILED");
         }
     }

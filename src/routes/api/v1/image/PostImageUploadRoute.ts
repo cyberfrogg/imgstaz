@@ -6,7 +6,7 @@ import { getContentBufferFromUploadedFile, getImageExtension, getUploadFileFromR
 import IDatabaseService from "../../../../services/database/IDatabaseService";
 import { GetImageDimensions } from "../../../../utils/imageUtils";
 import ImageUploadRouteResponse from '../../../../data/response/ImageUploadRouteResponse';
-import { STATUS_INVALID_FIELDS, STATUS_UNKNOWN_ERROR } from "../../../../utils/statusCodes";
+import { STATUS_ACCESS_DENIED, STATUS_INVALID_FIELDS, STATUS_NOT_FOUND, STATUS_UNKNOWN_ERROR } from "../../../../utils/statusCodes";
 const pathutils = require('path');
 
 class PostImageUploadRoute implements IRoute {
@@ -28,6 +28,30 @@ class PostImageUploadRoute implements IRoute {
     }
 
     execute = async (req: Request, res: Response) => {
+        const projectTokenReq = req.body.projecttoken;
+        // get project by token
+        if (projectTokenReq == undefined || projectTokenReq == null || projectTokenReq == "") {
+            res.status(STATUS_INVALID_FIELDS);
+            res.json(ReqResponse.Fail("ERRCODE_INVALID_FIELDS"));
+            return;
+        }
+
+        // get projecttoken by token
+        const getProjectTokenResponse = await this.database.tableProjectTokens.GetByToken(projectTokenReq);
+        if (!getProjectTokenResponse.success) {
+            res.status(STATUS_ACCESS_DENIED);
+            res.json(ReqResponse.Fail("ERRCODE_ACCESS_DENIED"));
+            return;
+        }
+
+        // get project
+        const getProjectResponse = await this.database.tableProjects.GetByUuid(getProjectTokenResponse.data.projectuuid);
+        if (!getProjectResponse.success) {
+            res.status(STATUS_NOT_FOUND);
+            res.json(ReqResponse.Fail("ERRCODE_PROJECT_NOT_FOUND"));
+            return;
+        }
+
         // validate if file even uploaded
         const uploadedFile = getUploadFileFromRequest(req);
 
@@ -47,9 +71,6 @@ class PostImageUploadRoute implements IRoute {
             return;
         }
 
-        // todo: get project uuid by its token
-        const projectUuid = "bedc8244-00c4-11ee-b3d7-f682a1ccfe54";
-
         // get new row uuid
         const nextRowUUidResponse = await this.database.GetNextUuid();
         if (!nextRowUUidResponse.success) {
@@ -61,7 +82,7 @@ class PostImageUploadRoute implements IRoute {
         // create empty row
         const emptyRowResponse = await this.database.tableImages.CreateEmpty(
             nextRowUUidResponse.data,
-            projectUuid
+            getProjectResponse.data.uuid
         );
         if (!emptyRowResponse.success) {
             res.status(STATUS_UNKNOWN_ERROR);
@@ -73,7 +94,7 @@ class PostImageUploadRoute implements IRoute {
         const imageDimensions = GetImageDimensions(fileBinary);
 
         // upload file
-        const savePath = this.getUploadKey(projectUuid, nextRowUUidResponse.data, fileExtension);
+        const savePath = this.getUploadKey(getProjectResponse.data.uuid, nextRowUUidResponse.data, fileExtension);
         const uploadResponse = await this.storage.bucket.upload(fileBinary, savePath);
         if (!uploadResponse.success) {
             res.status(STATUS_UNKNOWN_ERROR);
@@ -95,12 +116,13 @@ class PostImageUploadRoute implements IRoute {
             return;
         }
 
+        // return success
         const successResponse = new ImageUploadRouteResponse(
             uploadResponse.data.bucket,
             uploadResponse.data.location,
             uploadResponse.data.key,
             nextRowUUidResponse.data,
-            projectUuid,
+            getProjectResponse.data.uuid,
             imageDimensions.width,
             imageDimensions.height,
             fileExtension

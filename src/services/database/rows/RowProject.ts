@@ -1,6 +1,6 @@
-class ProjectRow {
+class RowProject {
     uuid: string;
     name: string;
 }
 
-export default ProjectRow;
+export default RowProject;

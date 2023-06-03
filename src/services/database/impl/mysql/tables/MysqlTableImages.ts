@@ -45,7 +45,7 @@ class MysqlTableImages implements IDatabaseTableImages {
     GetByToken = async (token: string): Promise<ReqResponse<RowImage>> => {
         throw new Error('Method not implemented.');
     }
-    GetBy = async (column: string, value: string): Promise<void> => {
+    GetBy = async (column: string, value: string): Promise<ReqResponse<RowImage>> => {
         throw new Error('Method not implemented.');
     }
 

@@ -1,3 +1,4 @@
 export const STATUS_INVALID_FIELDS = 400;
 export const STATUS_ACCESS_DENIED = 403;
+export const STATUS_NOT_FOUND = 404;
 export const STATUS_UNKNOWN_ERROR = 500;

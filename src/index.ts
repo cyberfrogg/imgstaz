@@ -64,7 +64,7 @@ const createRoutes = async (logger: ILoggerService, database: IDatabaseService, 
     let routes = new Array<IRoute>();
     routes.push(new GetPingRoute("/api/v1/ping"));
     routes.push(new PostUploadRoute("/api/v1/image/upload", database, storage));
-    routes.push(new PostProjectTokenCreate("/api/v1/project/tokenCreate", database));
+    routes.push(new PostProjectTokenCreate("/api/v1/project/tokenCreate", database, logger));
 
     // initialize routes
     for (const route of routes) {
@@ -87,8 +87,8 @@ const createDatabase = (logger: ILoggerService): IDatabaseService => {
     );
     const executor = new MysqlDatabaseExecutor(config, logger);
 
-    const projectsTable = new MysqlTableProjects(executor);
-    const projectTokensTable = new MysqlTableProjectTokens();
+    const projectsTable = new MysqlTableProjects(executor, logger);
+    const projectTokensTable = new MysqlTableProjectTokens(executor, logger);
     const imagesTable = new MysqlTableImages(logger, executor);
 
     logger.log(`\x1b[32mDatabase initialized! \x1b[0m`);
