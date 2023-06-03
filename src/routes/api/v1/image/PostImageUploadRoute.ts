@@ -2,13 +2,13 @@ import { Express, Request, Response } from "express";
 import IRoute from "../../../../services/routes/IRoute";
 import ReqResponse from '../../../../utils/ReqResponse';
 import IStorageService from '../../../../services/storage/IStorageService';
-import { UploadedFile } from "express-fileupload";
-import { allowedImageFormats, getContentBufferFromUploadedFile, getImageExtension, getUploadFileFromRequest } from "../../../../utils/fileUtils";
+import { getContentBufferFromUploadedFile, getImageExtension, getUploadFileFromRequest } from "../../../../utils/fileUtils";
 import IDatabaseService from "../../../../services/database/IDatabaseService";
 import { GetImageDimensions } from "../../../../utils/imageUtils";
+import ImageUploadRouteResponse from '../../../../data/response/ImageUploadRouteResponse';
 const pathutils = require('path');
 
-class PostUploadRoute implements IRoute {
+class PostImageUploadRoute implements IRoute {
     readonly path: string;
     private readonly baseFolder: string = process.env.S3_BASE_FOLDER;
 
@@ -40,7 +40,7 @@ class PostUploadRoute implements IRoute {
         // validate is file an image
         const fileExtension = getImageExtension(fileBinary);
         if (fileExtension == undefined) {
-            res.json(ReqResponse.Fail("Not allowed file type/extension found. Allowed image types: " + Object.keys(allowedImageFormats).toString()))
+            res.json(ReqResponse.Fail("ERRCODE_NOT_SUPPORTED_IMAGE_FORMAT"))
             return;
         }
 
@@ -88,8 +88,17 @@ class PostUploadRoute implements IRoute {
             return;
         }
 
-
-        res.json(ReqResponse.Success());
+        const successResponse = new ImageUploadRouteResponse(
+            uploadResponse.data.bucket,
+            uploadResponse.data.location,
+            uploadResponse.data.key,
+            nextRowUUidResponse.data,
+            projectUuid,
+            imageDimensions.width,
+            imageDimensions.height,
+            fileExtension
+        );
+        res.json(ReqResponse.Success(successResponse));
     }
 
     getUploadKey = (projectUuid: string, imageUuid: string, extension: string): string => {
@@ -97,4 +106,4 @@ class PostUploadRoute implements IRoute {
     }
 }
 
-export default PostUploadRoute;
+export default PostImageUploadRoute;

@@ -16,7 +16,7 @@ import S3BucketConfig from './services/s3bucket/impl/S3BucketConfig';
 import IStorageService from './services/storage/IStorageService';
 import S3BucketService from './services/s3bucket/impl/S3BucketService';
 import StorageService from './services/storage/impl/StorageService';
-import PostUploadRoute from './routes/api/v1/image/PostUploadRoute';
+import PostUploadRoute from './routes/api/v1/image/PostImageUploadRoute';
 const fileUpload = require('express-fileupload');
 const cors = require('cors');
 
