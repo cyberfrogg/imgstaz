@@ -17,6 +17,7 @@ import IStorageService from './services/storage/IStorageService';
 import S3BucketService from './services/s3bucket/impl/S3BucketService';
 import StorageService from './services/storage/impl/StorageService';
 import PostUploadRoute from './routes/api/v1/image/PostImageUploadRoute';
+import PostProjectTokenCreate from './routes/api/v1/project/PostProjectTokenCreate';
 const fileUpload = require('express-fileupload');
 const cors = require('cors');
 
@@ -63,6 +64,7 @@ const createRoutes = async (logger: ILoggerService, database: IDatabaseService, 
     let routes = new Array<IRoute>();
     routes.push(new GetPingRoute("/api/v1/ping"));
     routes.push(new PostUploadRoute("/api/v1/image/upload", database, storage));
+    routes.push(new PostProjectTokenCreate("/api/v1/project/tokenCreate", database));
 
     // initialize routes
     for (const route of routes) {

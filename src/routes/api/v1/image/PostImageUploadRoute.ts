@@ -6,6 +6,7 @@ import { getContentBufferFromUploadedFile, getImageExtension, getUploadFileFromR
 import IDatabaseService from "../../../../services/database/IDatabaseService";
 import { GetImageDimensions } from "../../../../utils/imageUtils";
 import ImageUploadRouteResponse from '../../../../data/response/ImageUploadRouteResponse';
+import { STATUS_INVALID_FIELDS, STATUS_UNKNOWN_ERROR } from "../../../../utils/statusCodes";
 const pathutils = require('path');
 
 class PostImageUploadRoute implements IRoute {
@@ -31,6 +32,7 @@ class PostImageUploadRoute implements IRoute {
         const uploadedFile = getUploadFileFromRequest(req);
 
         if (uploadedFile == undefined || uploadedFile.data == undefined) {
+            res.status(STATUS_INVALID_FIELDS);
             res.json(ReqResponse.Fail("ERRCODE_INVALID_FILE"));
             return;
         }
@@ -40,7 +42,8 @@ class PostImageUploadRoute implements IRoute {
         // validate is file an image
         const fileExtension = getImageExtension(fileBinary);
         if (fileExtension == undefined) {
-            res.json(ReqResponse.Fail("ERRCODE_NOT_SUPPORTED_IMAGE_FORMAT"))
+            res.status(STATUS_INVALID_FIELDS);
+            res.json(ReqResponse.Fail("ERRCODE_NOT_SUPPORTED_IMAGE_FORMAT"));
             return;
         }
 
@@ -50,6 +53,7 @@ class PostImageUploadRoute implements IRoute {
         // get new row uuid
         const nextRowUUidResponse = await this.database.GetNextUuid();
         if (!nextRowUUidResponse.success) {
+            res.status(STATUS_UNKNOWN_ERROR);
             res.json(ReqResponse.Fail("ERRCODE_UNKNOWN"));
             return;
         }
@@ -60,6 +64,7 @@ class PostImageUploadRoute implements IRoute {
             projectUuid
         );
         if (!emptyRowResponse.success) {
+            res.status(STATUS_UNKNOWN_ERROR);
             res.json(ReqResponse.Fail("ERRCODE_UNKNOWN"));
             return;
         }
@@ -71,6 +76,7 @@ class PostImageUploadRoute implements IRoute {
         const savePath = this.getUploadKey(projectUuid, nextRowUUidResponse.data, fileExtension);
         const uploadResponse = await this.storage.bucket.upload(fileBinary, savePath);
         if (!uploadResponse.success) {
+            res.status(STATUS_UNKNOWN_ERROR);
             res.json(ReqResponse.Fail("ERRCODE_UNKNOWN"));
             return;
         }
@@ -84,6 +90,7 @@ class PostImageUploadRoute implements IRoute {
             fileExtension
         )
         if (!updateRowResponse.success) {
+            res.status(STATUS_UNKNOWN_ERROR);
             res.json(ReqResponse.Fail("ERRCODE_UNKNOWN"));
             return;
         }
