@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>upload example</title>
+    <style>
+        body {
+            background: black;
+        }
+
+        * {
+            color: white;
+            font-size: 20px;
+        }
+
+        button {
+            background: rgb(26, 126, 192);
+            margin-bottom: 20px;
+        }
+
+        input[type=text] {
+            color: black;
+            margin-bottom: 10px;
+        }
+
+        input {
+            margin-bottom: 10px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 50px;
+            margin-left: 100px;
+        }
+
+        form>* {
+            width: 300px;
+        }
+
+        form .response {
+            width: 100%;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <form action="http://localhost:5001/api/v1/image/upload" method="POST" enctype="multipart/form-data"
+        id="uploadfileform">
+        <h1>Upload</h1>
+        <input type="file" name="uploadfile">
+        <input type="text" name="projecttoken" placeholder="Project token">
+        <pre class="response">
+
+        </pre>
+        <button type="submit">Submit</button>
+    </form>
+
+    <form action="http://localhost:5001/api/v1/project/tokenCreate" method="POST" class="formSendAsJson">
+        <h1>Create Project Token</h1>
+        <input type="text" name="serviceToken" placeholder="serviceToken">
+        <input type="text" name="projectUuid" placeholder="projectUuid">
+        <button type="submit">Submit</button>
+        <pre class="response">
+
+        </pre>
+    </form>
+
+    <form action="http://localhost:5001/api/v1/project/create" method="POST" class="formSendAsJson">
+        <h1>Create Project</h1>
+        <input type="text" name="serviceToken" placeholder="serviceToken">
+        <input type="text" name="projectName" placeholder="projectName">
+        <button type="submit">Submit</button>
+        <pre class="response">
+
+        </pre>
+    </form>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+        integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        // multiple forms as json
+        $(".formSendAsJson button").click((e) => {
+            e.preventDefault();
+            let form = e.target.parentNode;
+            let formAction = $(form).attr("action");
+            let formMethod = $(form).attr("method");
+
+            let formData = JSON.stringify(getFormData($(form)));
+
+            $.ajax({
+                type: formMethod,
+                url: formAction,
+                data: formData,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            })
+                .done(function (doneData) {
+                    $(form).find(".response").text("DONE: " + JSON.stringify(doneData, null, 4));
+                })
+                .fail(function (failData) {
+                    $(form).find(".response").text("FAIL: " + JSON.stringify(failData, null, 4));
+                })
+                .always(function (alwaysData) {
+
+                });
+        });
+
+        // only single one with file + field
+        $("#uploadfileform button").click((e) => {
+            e.preventDefault();
+
+            let form = e.target.parentNode;
+            let formAction = $(form).attr("action");
+            let formMethod = $(form).attr("method");
+
+            let fileInput = $($(form).find("input[type=file]"))[0];
+            let projectTokenInput = $($(form).find("input[type=text]"))[0];
+
+            let file = fileInput.files[0];
+            let projectToken = projectTokenInput.value;
+
+            if (file == undefined) {
+                alert("Input failed: File is undefined");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append('uploadfile', file);
+            formData.append('projecttoken', projectToken);
+
+            $.ajax({
+                type: formMethod,
+                url: formAction,
+                data: formData,
+                processData: false,
+                contentType: false
+            })
+                .done(function (doneData) {
+                    $(form).find(".response").text("DONE: \n \n" + JSON.stringify(doneData, null, 4));
+                })
+                .fail(function (failData) {
+                    $(form).find(".response").text("FAIL: \n \n" + JSON.stringify(failData, null, 4));
+                })
+                .always(function (alwaysData) {
+
+                });
+        });
+
+        function getFormData($form) {
+            var unindexed_array = $form.serializeArray();
+            var indexed_array = {};
+
+            $.map(unindexed_array, function (n, i) {
+                indexed_array[n['name']] = n['value'];
+            });
+
+            return indexed_array;
+        }
+    </script>
+</body>
+
+</html>
