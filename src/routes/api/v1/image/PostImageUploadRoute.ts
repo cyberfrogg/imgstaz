@@ -29,7 +29,7 @@ class PostImageUploadRoute implements IRoute {
 
     execute = async (req: Request, res: Response) => {
         const projectTokenReq = req.body.projecttoken;
-        // get project by token
+        // validate projectToken field
         if (projectTokenReq == undefined || projectTokenReq == null || projectTokenReq == "") {
             res.status(STATUS_INVALID_FIELDS);
             res.json(ReqResponse.Fail("ERRCODE_INVALID_FIELDS"));

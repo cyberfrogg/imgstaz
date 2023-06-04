@@ -14,7 +14,7 @@ class MysqlTableProjectTokens implements IDatabaseTableProjectTokens {
         this.executor = executor;
     }
 
-    Create = async (newRowUuid: string, projectUuid: string, token: any): Promise<ReqResponse<RowProjectToken>> => {
+    Create = async (newRowUuid: string, projectUuid: string, token: string): Promise<ReqResponse<RowProjectToken>> => {
         try {
             const queryResponse = await this.executor.query(
                 `INSERT INTO projecttokens

@@ -14,6 +14,31 @@ class MysqlTableProjects implements IDatabaseTableProject {
         this.logger = logger;
     }
 
+    Create = async (newRowUuid: string, name: string): Promise<ReqResponse<RowProject>> => {
+        try {
+            const queryResponse = await this.executor.query(
+                `INSERT INTO projects
+                (uuid, name)
+                VALUES (?, ?)`,
+                [newRowUuid, name]
+            );
+
+            if (!queryResponse.success) {
+                return ReqResponse.Fail("ERRCODE_UNKNOWN");
+            }
+
+            let responseData = new RowProject();
+            responseData.name = name;
+            responseData.uuid = newRowUuid;
+
+            return ReqResponse.Success(responseData);
+        }
+        catch (e) {
+            this.logger.error(e);
+            return ReqResponse.Fail("ERRCODE_UNKNOWN");
+        }
+    }
+
     GetByUuid = async (uuid: string): Promise<ReqResponse<RowProject>> => {
         return await this.GetBy("uuid", uuid);
     }
