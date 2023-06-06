@@ -51,7 +51,6 @@ class MysqlTableProjectTokens implements IDatabaseTableProjectTokens {
     GetBy = async (column: string, value: string): Promise<ReqResponse<any>> => {
         try {
             if (!this.IsColumnValid(column)) {
-                console.log(column);
                 return ReqResponse.Fail("ERRCODE_INVALID_COLUMN");
             }
 
