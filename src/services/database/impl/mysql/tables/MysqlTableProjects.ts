@@ -48,7 +48,6 @@ class MysqlTableProjects implements IDatabaseTableProject {
     GetBy = async (column: string, value: string): Promise<ReqResponse<RowProject>> => {
         try {
             if (!this.IsColumnValid(column)) {
-                console.log(column);
                 return ReqResponse.Fail("ERRCODE_INVALID_COLUMN");
             }
 
