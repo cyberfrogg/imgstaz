@@ -47,6 +47,7 @@ const initializeApp = async () => {
     // handle all other errors
     app.use((err, req, res, next) => {
         if (err instanceof SyntaxError && 'body' in err) {
+            logger.error("Unhandled error catched");
             logger.error(err);
             return res.json(ReqResponse.Fail("ERRCODE_UNKNOWN"));
         }
@@ -84,8 +85,10 @@ const createDatabase = (logger: ILoggerService): IDatabaseService => {
         process.env.DB_ADDRESS,
         Number(process.env.DB_PORT),
         process.env.DB_NAME,
+        process.env.DB_USER,
         process.env.DB_PASS,
-        process.env.DB_PASS,
+        process.env.DB_IS_DEBUG == "true",
+        process.env.DB_IS_TRACE == "true",
     );
     const executor = new MysqlDatabaseExecutor(config, logger);
 
