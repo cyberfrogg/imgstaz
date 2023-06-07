@@ -22,23 +22,34 @@ While developing this service I wrote some simple JQuery form examples in /test/
 
 ### SQL database tables:
 ```mysql
-projects
-    - uuid: varchar(36)
-    - name: varchar(50)
 
-projecttokens
-    - uuid: varchar(36)
-    - projectuuid: varchar(36)
-    - token: varchar(512)
-    - create_time: timestamp
+CREATE DATABASE imgstaz;
 
-images
-    - uuid: varchar(36)
-    - pointerdata: json
-    - width: int
-    - height: int
-    - mime: varchar(5)
-    - create_time: timestamp
+```
+
+```mysql
+
+CREATE TABLE projects (
+    uuid varchar(36),
+    name varchar(50)
+);
+
+CREATE TABLE projecttokens (
+    uuid varchar(36),
+    projectuuid varchar(36),
+    token varchar(512),
+    create_time timestamp
+);
+
+CREATE TABLE images (
+    uuid varchar(36),
+    pointerdata json,
+    width int,
+    height int,
+    mime varchar(5),
+    create_time timestamp
+);
+
 ```
 
 ### Setup .env file

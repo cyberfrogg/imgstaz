@@ -35,14 +35,17 @@ class MysqlDatabaseService implements IDatabaseService {
             []
         )
 
-        if (!queryResponse.success)
+        if (!queryResponse.success) {
+            this.logger.error("Failed to get next UUID. Query was not successfull. Message: " + queryResponse.message);
             return ReqResponse.Fail(queryResponse.message);
+        }
 
         try {
             const uuid = queryResponse.data[0]["UUID_Value"];
             return ReqResponse.Success(uuid);
         }
         catch (e) {
+            this.logger.error("Failed to get next UUID");
             this.logger.error(e);
             return ReqResponse.Fail(queryResponse.message);
         }
