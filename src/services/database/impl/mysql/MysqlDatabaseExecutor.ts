@@ -22,7 +22,8 @@ class MysqlDatabaseExecutor {
 
             return ReqResponse.Success(results);
         } catch (error) {
-            this.logger.error(error);
+            this.logger.error("Unhandled database error occured");
+            this.logger.error(JSON.stringify(error));
             return ReqResponse.Fail("ERRCODE_DATABASE_FAILED");
         }
     }

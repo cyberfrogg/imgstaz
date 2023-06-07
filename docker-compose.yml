@@ -1,0 +1,47 @@
+version: "2"
+services:
+  node:
+    image: "node:18.15.0"
+    user: "root"
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=production
+      - PORT=5001
+      - WEBSITE_CORS_URL=*
+      - MAX_FILE_SIZE=25
+      - DB_ADDRESS=localhost
+      - DB_PORT=3306
+      - DB_NAME=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      - DB_USER=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      - DB_PASS=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      - DB_IS_DEBUG=false
+      - DB_IS_TRACE=false
+      - S3_BUCKET_NAME=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      - S3_BASE_FOLDER=/imgstaz
+      - S3_BUCKET_ENDPOINT=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      - S3_ACCESS_KEY_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      - S3_SECRET_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      - S3_SSL_ENABLED=1
+      - S3_FORCE_PATH_STYLE=0
+      - PROJECT_CREATE_TOKEN_SERVICE_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      - PROJECT_NAME_LEN_MIN=3
+      - PROJECT_NAME_LEN_MAX=50
+      - CONFIG_UUID_LENGTH=36
+    volumes:
+      - ./:/home/node/app:Z
+    ports:
+      - "5001:5001"
+    expose:
+      - "5001"
+    command: bash -c "
+        echo running container &&
+        ls -la &&
+        chown root:root -R /home/node/app &&
+        npm install &&
+        echo installed all npm packages &&
+        npm run build &&
+        echo build successfull &&
+        echo starting app... &&
+        npm run start
+      "
+

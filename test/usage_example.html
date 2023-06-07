@@ -49,8 +49,13 @@
 </head>
 
 <body>
-    <form action="http://localhost:5001/api/v1/image/upload" method="POST" enctype="multipart/form-data"
-        id="uploadfileform">
+
+    <form>
+        <h1>Setting for all</h1>
+        <input type="text" placeholder="Api Base Url" value="http://localhost:5001" id="apibaseurlinput" />
+    </form>
+
+    <form action="/api/v1/image/upload" method="POST" enctype="multipart/form-data" id="uploadfileform">
         <h1>Upload</h1>
         <input type="file" name="uploadfile">
         <input type="text" name="projecttoken" placeholder="Project token">
@@ -60,7 +65,7 @@
         <button type="submit">Submit</button>
     </form>
 
-    <form action="http://localhost:5001/api/v1/project/tokenCreate" method="POST" class="formSendAsJson">
+    <form action="/api/v1/project/tokenCreate" method="POST" class="formSendAsJson">
         <h1>Create Project Token</h1>
         <input type="text" name="serviceToken" placeholder="serviceToken">
         <input type="text" name="projectUuid" placeholder="projectUuid">
@@ -70,7 +75,7 @@
         </pre>
     </form>
 
-    <form action="http://localhost:5001/api/v1/project/create" method="POST" class="formSendAsJson">
+    <form action="/api/v1/project/create" method="POST" class="formSendAsJson">
         <h1>Create Project</h1>
         <input type="text" name="serviceToken" placeholder="serviceToken">
         <input type="text" name="projectName" placeholder="projectName">
@@ -87,8 +92,10 @@
         // multiple forms as json
         $(".formSendAsJson button").click((e) => {
             e.preventDefault();
+            let apiBaseUrl = $("#apibaseurlinput").val();
+
             let form = e.target.parentNode;
-            let formAction = $(form).attr("action");
+            let formAction = apiBaseUrl + $(form).attr("action");
             let formMethod = $(form).attr("method");
 
             let formData = JSON.stringify(getFormData($(form)));
@@ -114,9 +121,10 @@
         // only single one with file + field
         $("#uploadfileform button").click((e) => {
             e.preventDefault();
+            let apiBaseUrl = $("#apibaseurlinput").val();
 
             let form = e.target.parentNode;
-            let formAction = $(form).attr("action");
+            let formAction = apiBaseUrl + $(form).attr("action");
             let formMethod = $(form).attr("method");
 
             let fileInput = $($(form).find("input[type=file]"))[0];
