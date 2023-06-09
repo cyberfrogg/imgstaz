@@ -89,6 +89,7 @@ CREATE TABLE projecttokens (
 
 CREATE TABLE images (
     uuid varchar(36),
+    projectuuid varchar(36),
     pointerdata json,
     width int,
     height int,

@@ -7,6 +7,7 @@ import IDatabaseService from "../../../../services/database/IDatabaseService";
 import { GetImageDimensions } from "../../../../utils/imageUtils";
 import ImageUploadRouteResponse from '../../../../data/response/ImageUploadRouteResponse';
 import { STATUS_ACCESS_DENIED, STATUS_INVALID_FIELDS, STATUS_NOT_FOUND, STATUS_UNKNOWN_ERROR } from "../../../../utils/statusCodes";
+import ILoggerService from '../../../../services/logger/ILoggerService';
 const pathutils = require('path');
 
 class PostImageUploadRoute implements IRoute {
@@ -15,12 +16,14 @@ class PostImageUploadRoute implements IRoute {
 
     private readonly storage: IStorageService;
     private readonly database: IDatabaseService;
+    private readonly logger: ILoggerService;
 
 
-    constructor(path: string, database: IDatabaseService, storage: IStorageService) {
+    constructor(path: string, database: IDatabaseService, storage: IStorageService, logger: ILoggerService) {
         this.path = path;
         this.storage = storage;
         this.database = database;
+        this.logger = logger;
     }
 
     async initialize(expressApp: Express): Promise<void> {
@@ -94,7 +97,21 @@ class PostImageUploadRoute implements IRoute {
         const imageDimensions = GetImageDimensions(fileBinary);
 
         // upload file
-        const savePath = this.getUploadKey(getProjectResponse.data.uuid, nextRowUUidResponse.data, fileExtension);
+        let savePath = "";
+        try {
+            savePath = this.getUploadKey(getProjectResponse.data.uuid, nextRowUUidResponse.data, fileExtension);
+        }
+        catch (savePathError) {
+            this.logger.error("Failed to get save path key. Error:");
+            this.logger.error("getProjectResponse.data.uuid: " + getProjectResponse.data.uuid);
+            this.logger.error("nextRowUUidResponse.data: " + nextRowUUidResponse.data);
+            this.logger.error("fileExtension: " + fileExtension);
+            this.logger.error(JSON.stringify(savePathError));
+            res.status(STATUS_UNKNOWN_ERROR);
+            res.json(ReqResponse.Fail("ERRCODE_UNKNOWN"));
+            return;
+        }
+
         const uploadResponse = await this.storage.bucket.upload(fileBinary, savePath);
         if (!uploadResponse.success) {
             res.status(STATUS_UNKNOWN_ERROR);
