@@ -20,6 +20,52 @@ While developing this service I wrote some simple JQuery form examples in /test/
 
 ## Setup:
 
+### Docker/Podman
+docker-compose.yml didn't work well. So its now better to just launch pods my yourself.
+
+Exmaple of `run`:
+```sh
+podman run -d \
+                         --name mysql \
+                         -v /imgstazdeploy/mysql:/var/lib/mysql:Z \
+                         -e MYSQL_ROOT_PASSWORD='root' \
+                         -e MYSQL_USER=superadmin \
+                         -e MYSQL_PASSWORD='superadmin' \
+                         --pod=imgstaz \
+                         mysql:8
+
+
+podman run -d \
+                         --name imgstaz_backend \
+                         -v /imgstazdeploy/imgstaz:/home/node/app:Z \
+                         -e NODE_ENV=production \
+                         -e PORT=5001 \
+                         -e WEBSITE_CORS_URL='*' \
+                         -e MAX_FILE_SIZE=25 \
+                         -e DB_ADDRESS=0.0.0.0 \
+                         -e DB_PORT=3306 \
+                         -e DB_NAME=imgstaz \
+                         -e DB_USER=superadmin \
+                         -e DB_PASS=xxx \
+                         -e DB_IS_DEBUG=true \
+                         -e DB_IS_TRACE=true \
+                         -e S3_BUCKET_NAME=xxx \
+                         -e S3_BUCKET_ENDPOINT=xxx \
+                         -e S3_ACCESS_KEY_ID=xxx \
+                         -e S3_SECRET_KEY=xxx \
+                         -e S3_SSL_ENABLED=1 \
+                         -e S3_FORCE_PATH_STYLE=0 \
+                         -e PROJECT_CREATE_TOKEN_SERVICE_TOKEN=xxx \
+                         -e PROJECT_NAME_LEN_MIN=3 \
+                         -e PROJECT_NAME_LEN_MAX=50 \
+                         -e CONFIG_UUID_LENGTH=36 \
+                         --entrypoint="/bin/bash" \
+                         --pod=imgstaz \
+                         node:18.15.0 \
+                         -c '/home/node/app/run_prod.sh'
+
+```
+
 ### SQL database tables:
 ```mysql
 
@@ -43,6 +89,7 @@ CREATE TABLE projecttokens (
 
 CREATE TABLE images (
     uuid varchar(36),
+    projectuuid varchar(36),
     pointerdata json,
     width int,
     height int,
