@@ -5,9 +5,9 @@ class S3BucketUploadResponseData {
     key: string;
 
     constructor(bucket: string, location: string, key: string) {
-        this.bucket = bucket
-        this.location = location
-        this.key = key
+        this.bucket = bucket;
+        this.location = location;
+        this.key = key;
     }
 }
 
