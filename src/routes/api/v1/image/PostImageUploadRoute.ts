@@ -13,6 +13,7 @@ const pathutils = require('path');
 class PostImageUploadRoute implements IRoute {
     readonly path: string;
     private readonly baseFolder: string = process.env.S3_BASE_FOLDER;
+    private readonly domainLocation: string = process.env.S3_BUCKET_DOMAINLOCATION;
 
     private readonly storage: IStorageService;
     private readonly database: IDatabaseService;
@@ -103,9 +104,6 @@ class PostImageUploadRoute implements IRoute {
         }
         catch (savePathError) {
             this.logger.error("Failed to get save path key. Error:");
-            this.logger.error("getProjectResponse.data.uuid: " + getProjectResponse.data.uuid);
-            this.logger.error("nextRowUUidResponse.data: " + nextRowUUidResponse.data);
-            this.logger.error("fileExtension: " + fileExtension);
             this.logger.error(JSON.stringify(savePathError));
             res.status(STATUS_UNKNOWN_ERROR);
             res.json(ReqResponse.Fail("ERRCODE_UNKNOWN"));
@@ -136,7 +134,7 @@ class PostImageUploadRoute implements IRoute {
         // return success
         const successResponse = new ImageUploadRouteResponse(
             uploadResponse.data.bucket,
-            uploadResponse.data.location,
+            this.getImageDomainLocation(uploadResponse.data.key),
             uploadResponse.data.key,
             nextRowUUidResponse.data,
             getProjectResponse.data.uuid,
@@ -145,6 +143,10 @@ class PostImageUploadRoute implements IRoute {
             fileExtension
         );
         res.json(ReqResponse.Success(successResponse));
+    }
+
+    getImageDomainLocation = (key: string): string => {
+        return pathutils.join(this.domainLocation, key);
     }
 
     getUploadKey = (projectUuid: string, imageUuid: string, extension: string): string => {

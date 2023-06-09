@@ -47,10 +47,12 @@ podman run -d \
                          -e DB_NAME=imgstaz \
                          -e DB_USER=superadmin \
                          -e DB_PASS=xxx \
-                         -e DB_IS_DEBUG=true \
-                         -e DB_IS_TRACE=true \
+                         -e DB_IS_DEBUG=false \
+                         -e DB_IS_TRACE=false \
                          -e S3_BUCKET_NAME=xxx \
-                         -e S3_BUCKET_ENDPOINT=xxx \
+                         -e S3_BASE_FOLDER=/imgstaz \
+                         -e S3_BUCKET_ENDPOINT=https://xxx.com \
+                         -e S3_BUCKET_DOMAINLOCATION=https://yyy.xxx.com
                          -e S3_ACCESS_KEY_ID=xxx \
                          -e S3_SECRET_KEY=xxx \
                          -e S3_SSL_ENABLED=1 \

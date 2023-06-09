@@ -65,7 +65,7 @@ const initializeApp = async () => {
 const createRoutes = async (logger: ILoggerService, database: IDatabaseService, storage: IStorageService): Promise<Array<IRoute>> => {
     let routes = new Array<IRoute>();
     routes.push(new GetPingRoute("/api/v1/ping"));
-    routes.push(new PostUploadRoute("/api/v1/image/upload", database, storage));
+    routes.push(new PostUploadRoute("/api/v1/image/upload", database, storage, logger));
     routes.push(new PostProjectTokenCreate("/api/v1/project/tokenCreate", database, logger));
     routes.push(new PostProjectCreate("/api/v1/project/create", database, logger));
 
